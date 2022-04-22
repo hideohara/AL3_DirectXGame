@@ -64,6 +64,11 @@ class GameScene {
 	Model* modelStage_ = nullptr;
 	WorldTransform worldTransformStage_;
 
+	// プレイヤー
+	uint32_t textureHandlePlayer_ = 0;
+	Model* modelPlayer_ = nullptr;
+	WorldTransform worldTransformPlayer_;
+
 	// サウンドデータハンドル
 	// uint32_t soundDataHandle_ = 0;
 
@@ -72,4 +77,6 @@ class GameScene {
 
 	//  値を表示したい変数
 	// int32_t value_ = 0;
+
+	void PlayerUpdate(); // プレイヤー更新
 };

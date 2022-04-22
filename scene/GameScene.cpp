@@ -11,6 +11,7 @@ GameScene::GameScene() {}
 GameScene::~GameScene() {
 	delete spriteBG_;
 	delete modelStage_;
+	delete modelPlayer_;
 }
 
 // 初期化
@@ -37,6 +38,12 @@ void GameScene::Initialize() {
 	worldTransformStage_.scale_ = {4.5f, 1, 40};
 	worldTransformStage_.Initialize();
 
+	// プレイヤー
+	textureHandlePlayer_ = TextureManager::Load("player.png");
+	modelPlayer_ = Model::Create();
+	worldTransformPlayer_.scale_ = {0.5f, 0.5f, 0.5f};
+	worldTransformPlayer_.Initialize();
+
 	// サウンドデータの読み込み
 	// soundDataHandle_ = audio_->LoadWave("Alarm01.wav");
 
@@ -48,6 +55,9 @@ void GameScene::Initialize() {
 
 // 更新
 void GameScene::Update() {
+
+	PlayerUpdate(); // プレイヤー更新
+
 	// スプライトの今の座標を取得
 	// XMFLOAT2 position = sprite_->GetPosition();
 	// 座標を{ 2, 0 }移動
@@ -107,7 +117,11 @@ void GameScene::Draw() {
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
 
+	// ステージ
 	modelStage_->Draw(worldTransformStage_, viewProjection_, textureHandleStage_);
+
+	// プレイヤー
+	modelPlayer_->Draw(worldTransformPlayer_, viewProjection_, textureHandlePlayer_);
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
@@ -128,4 +142,34 @@ void GameScene::Draw() {
 	Sprite::PostDraw();
 
 #pragma endregion
+}
+
+// —------------------------------------------
+// プレイヤー
+// —------------------------------------------
+
+// プレイヤー更新
+void GameScene::PlayerUpdate() {
+	// 移動
+
+	// 右へ移動
+	if (input_->PushKey(DIK_RIGHT)) {
+		worldTransformPlayer_.translation_.x += 0.1f;
+	}
+
+	// 左へ移動
+	if (input_->PushKey(DIK_LEFT)) {
+		worldTransformPlayer_.translation_.x -= 0.1f;
+	}
+
+	// 移動制限
+	if (worldTransformPlayer_.translation_.x > 4) {
+		worldTransformPlayer_.translation_.x = 4;
+	}
+	if (worldTransformPlayer_.translation_.x < -4) {
+		worldTransformPlayer_.translation_.x = -4;
+	}
+
+	//　行列更新
+	worldTransformPlayer_.UpdateMatrix();
 }
