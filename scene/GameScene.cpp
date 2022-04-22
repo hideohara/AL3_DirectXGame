@@ -4,14 +4,16 @@
 
 using namespace DirectX;
 
+// コンストラクタ
 GameScene::GameScene() {}
 
 // デストラクタ
 GameScene::~GameScene() {
-	delete sprite_;
-	delete model_;
+	delete spriteBG_;
+	delete modelStage_;
 }
 
+// 初期化
 void GameScene::Initialize() {
 
 	dxCommon_ = DirectXCommon::GetInstance();
@@ -19,22 +21,24 @@ void GameScene::Initialize() {
 	audio_ = Audio::GetInstance();
 	debugText_ = DebugText::GetInstance();
 
-	// ファイル名を指定してテクスチャを読み込む
-	textureHandle_ = TextureManager::Load("player.png");
+	// BG
+	textureHandleBG_ = TextureManager::Load("bg.jpg");
+	spriteBG_ = Sprite::Create(textureHandleBG_, {0, 0});
 
-	// スプライトの生成
-	sprite_ = Sprite::Create(textureHandle_, {100, 50});
-
-	// 3Dモデルの生成
-	model_ = Model::Create();
-
-	// ワールドトランスフォームの初期化
-	worldTransform_.Initialize();
 	// ビュープロジェクションの初期化
+	viewProjection_.eye = {0, 1, -6};
+	viewProjection_.target = {0, 1, 0};
 	viewProjection_.Initialize();
 
+	// ステージ
+	textureHandleStage_ = TextureManager::Load("stage.jpg");
+	modelStage_ = Model::Create();
+	worldTransformStage_.translation_ = {0, -1.5f, 0};
+	worldTransformStage_.scale_ = {4.5f, 1, 40};
+	worldTransformStage_.Initialize();
+
 	// サウンドデータの読み込み
-	soundDataHandle_ = audio_->LoadWave("Alarm01.wav");
+	// soundDataHandle_ = audio_->LoadWave("Alarm01.wav");
 
 	// 音声再生
 	// audio_->PlayWave(soundDataHandle_);
@@ -42,20 +46,21 @@ void GameScene::Initialize() {
 	// voiceHandle_ = audio_->PlayWave(soundDataHandle_, true);
 }
 
+// 更新
 void GameScene::Update() {
 	// スプライトの今の座標を取得
-	XMFLOAT2 position = sprite_->GetPosition();
+	// XMFLOAT2 position = sprite_->GetPosition();
 	// 座標を{ 2, 0 }移動
-	position.x += 2.0f;
-	position.y += 1.0f;
+	// position.x += 2.0f;
+	// position.y += 1.0f;
 	// 移動した座標をスプライトに反映
-	sprite_->SetPosition(position);
+	// sprite_->SetPosition(position);
 
 	// スペースキーを押した瞬間
-	if (input_->TriggerKey(DIK_SPACE)) {
-		// 音声停止
-		audio_->StopWave(voiceHandle_);
-	}
+	// if (input_->TriggerKey(DIK_SPACE)) {
+	// 音声停止
+	// audio_->StopWave(voiceHandle_);
+	//}
 
 	//// デバッグテキストの表示
 	// debugText_->Print("Kaizokuou ni oreha naru.", 200, 500, 2.0f);
@@ -65,13 +70,14 @@ void GameScene::Update() {
 	// debugText_->Printf("year:%d", 2001);
 
 	// 変数の値をインクリメント
-	value_++;
+	// value_++;
 	// 値を含んだ文字列
-	std::string strDebug = std::string("Value:") + std::to_string(value_);
+	// std::string strDebug = std::string("Value:") + std::to_string(value_);
 	// デバッグテキストの表示
-	debugText_->Print(strDebug, 50, 50, 2.0f);
+	// debugText_->Print(strDebug, 50, 50, 2.0f);
 }
 
+// 表示
 void GameScene::Draw() {
 
 	// コマンドリストの取得
@@ -84,6 +90,8 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに背景スプライトの描画処理を追加できる
 	/// </summary>
+
+	spriteBG_->Draw();
 
 	// スプライト描画後処理
 	Sprite::PostDraw();
@@ -98,7 +106,8 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
-	model_->Draw(worldTransform_, viewProjection_, textureHandle_);
+
+	modelStage_->Draw(worldTransformStage_, viewProjection_, textureHandleStage_);
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
@@ -111,8 +120,6 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
-
-	sprite_->Draw();
 
 	// デバッグテキストの描画
 	debugText_->DrawAll(commandList);
