@@ -12,6 +12,7 @@ GameScene::~GameScene() {
 	delete spriteBG_;
 	delete modelStage_;
 	delete modelPlayer_;
+	delete modelBeam_;
 }
 
 // 初期化
@@ -44,6 +45,12 @@ void GameScene::Initialize() {
 	worldTransformPlayer_.scale_ = {0.5f, 0.5f, 0.5f};
 	worldTransformPlayer_.Initialize();
 
+	// ビーム
+	textureHandleBeam_ = TextureManager::Load("beam.png");
+	modelBeam_ = Model::Create();
+	worldTransformBeam_.scale_ = {0.3f, 0.3f, 0.3f};
+	worldTransformBeam_.Initialize();
+
 	// サウンドデータの読み込み
 	// soundDataHandle_ = audio_->LoadWave("Alarm01.wav");
 
@@ -57,34 +64,7 @@ void GameScene::Initialize() {
 void GameScene::Update() {
 
 	PlayerUpdate(); // プレイヤー更新
-
-	// スプライトの今の座標を取得
-	// XMFLOAT2 position = sprite_->GetPosition();
-	// 座標を{ 2, 0 }移動
-	// position.x += 2.0f;
-	// position.y += 1.0f;
-	// 移動した座標をスプライトに反映
-	// sprite_->SetPosition(position);
-
-	// スペースキーを押した瞬間
-	// if (input_->TriggerKey(DIK_SPACE)) {
-	// 音声停止
-	// audio_->StopWave(voiceHandle_);
-	//}
-
-	//// デバッグテキストの表示
-	// debugText_->Print("Kaizokuou ni oreha naru.", 200, 500, 2.0f);
-
-	//// 書式指定付き表示
-	// debugText_->SetPos(50, 70);
-	// debugText_->Printf("year:%d", 2001);
-
-	// 変数の値をインクリメント
-	// value_++;
-	// 値を含んだ文字列
-	// std::string strDebug = std::string("Value:") + std::to_string(value_);
-	// デバッグテキストの表示
-	// debugText_->Print(strDebug, 50, 50, 2.0f);
+	BeamUpdate();   // ビーム更新
 }
 
 // 表示
@@ -122,6 +102,11 @@ void GameScene::Draw() {
 
 	// プレイヤー
 	modelPlayer_->Draw(worldTransformPlayer_, viewProjection_, textureHandlePlayer_);
+
+	// ビーム
+	if (beamFlag_ == 1) {
+		modelBeam_->Draw(worldTransformBeam_, viewProjection_, textureHandleBeam_);
+	}
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
@@ -172,4 +157,55 @@ void GameScene::PlayerUpdate() {
 
 	//　行列更新
 	worldTransformPlayer_.UpdateMatrix();
+}
+
+// —------------------------------------------
+// ビーム
+// —------------------------------------------
+
+// ビーム更新
+void GameScene::BeamUpdate() {
+	// 移動
+	BeamMove();
+
+	// ビーム発生
+	BeamBorn();
+
+	//行列更新
+	worldTransformBeam_.UpdateMatrix();
+}
+
+// ビーム移動
+void GameScene::BeamMove() {
+	// 存在すれば
+	if (beamFlag_ == 1) {
+		// 奥へ移動
+		worldTransformBeam_.translation_.z += 0.3f;
+
+		// 画面端ならば存在しない
+		if (worldTransformBeam_.translation_.z > 40) {
+			// 存在しない
+			beamFlag_ = 0;
+		}
+
+		// 回転
+		worldTransformBeam_.rotation_.x += 0.1f;
+	}
+}
+
+// ビーム発生（発射）
+void GameScene::BeamBorn() {
+	// 存在しなければ
+	if (beamFlag_ == 0) {
+
+		// スペースキーを押したらビームを発射する
+		if (input_->PushKey(DIK_SPACE)) {
+			//ビーム座標にプレイヤー座標を代入する）
+			worldTransformBeam_.translation_.x = worldTransformPlayer_.translation_.x;
+			worldTransformBeam_.translation_.z = worldTransformPlayer_.translation_.z;
+
+			// 存在する
+			beamFlag_ = 1;
+		}
+	}
 }

@@ -69,6 +69,12 @@ class GameScene {
 	Model* modelPlayer_ = nullptr;
 	WorldTransform worldTransformPlayer_;
 
+	// ビ－ム
+	uint32_t textureHandleBeam_ = 0;
+	Model* modelBeam_ = nullptr;
+	WorldTransform worldTransformBeam_;
+	int beamFlag_ = 0; // ビーム存在フラグ（0:存在しない、1:存在する）
+
 	// サウンドデータハンドル
 	// uint32_t soundDataHandle_ = 0;
 
@@ -79,4 +85,7 @@ class GameScene {
 	// int32_t value_ = 0;
 
 	void PlayerUpdate(); // プレイヤー更新
+	void BeamUpdate();   // ビーム更新
+	void BeamMove();     // ビーム移動
+	void BeamBorn();     // ビーム発生
 };
