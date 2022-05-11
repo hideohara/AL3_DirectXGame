@@ -1,6 +1,7 @@
 ﻿#include "GameScene.h"
 #include "TextureManager.h"
 #include <cassert>
+#include <time.h>
 
 using namespace DirectX;
 
@@ -13,6 +14,7 @@ GameScene::~GameScene() {
 	delete modelStage_;
 	delete modelPlayer_;
 	delete modelBeam_;
+	delete modelEnemy_;
 }
 
 // 初期化
@@ -22,6 +24,9 @@ void GameScene::Initialize() {
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
 	debugText_ = DebugText::GetInstance();
+
+	// 乱数初期化
+	srand((unsigned int)time(NULL));
 
 	// BG
 	textureHandleBG_ = TextureManager::Load("bg.jpg");
@@ -51,6 +56,12 @@ void GameScene::Initialize() {
 	worldTransformBeam_.scale_ = {0.3f, 0.3f, 0.3f};
 	worldTransformBeam_.Initialize();
 
+	// 敵
+	textureHandleEnemy_ = TextureManager::Load("enemy.png");
+	modelEnemy_ = Model::Create();
+	worldTransformEnemy_.scale_ = {0.5f, 0.5f, 0.5f};
+	worldTransformEnemy_.Initialize();
+
 	// サウンドデータの読み込み
 	// soundDataHandle_ = audio_->LoadWave("Alarm01.wav");
 
@@ -65,6 +76,7 @@ void GameScene::Update() {
 
 	PlayerUpdate(); // プレイヤー更新
 	BeamUpdate();   // ビーム更新
+	EnemyUpdate();  // 敵更新
 }
 
 // 表示
@@ -106,6 +118,11 @@ void GameScene::Draw() {
 	// ビーム
 	if (beamFlag_ == 1) {
 		modelBeam_->Draw(worldTransformBeam_, viewProjection_, textureHandleBeam_);
+	}
+
+	// 敵
+	if (enemyFlag_ == 1) {
+		modelEnemy_->Draw(worldTransformEnemy_, viewProjection_, textureHandleEnemy_);
 	}
 
 	// 3Dオブジェクト描画後処理
@@ -207,5 +224,57 @@ void GameScene::BeamBorn() {
 			// 存在する
 			beamFlag_ = 1;
 		}
+	}
+}
+
+// —------------------------------------------
+// 敵
+// —------------------------------------------
+
+// 敵更新
+void GameScene::EnemyUpdate() {
+	// 移動
+	EnemyMove();
+
+	// 敵発生
+	EnemyBorn();
+
+	//行列更新
+	worldTransformEnemy_.UpdateMatrix();
+}
+
+// 敵移動
+void GameScene::EnemyMove() {
+	// 存在すれば
+	if (enemyFlag_ == 1) {
+		// 手前へ移動
+		worldTransformEnemy_.translation_.z -= 0.1f;
+
+		// 画面端ならば存在しない
+		if (worldTransformEnemy_.translation_.z < -5) {
+			// 存在しない
+			enemyFlag_ = 0;
+		}
+
+		// 回転
+		worldTransformEnemy_.rotation_.x -= 0.1f;
+	}
+}
+
+// 敵発生
+void GameScene::EnemyBorn() {
+	// 存在しなければ
+	if (enemyFlag_ == 0) {
+
+		// 存在する
+		enemyFlag_ = 1;
+
+		// z座標を40にする
+		worldTransformEnemy_.translation_.z = 40;
+
+		// 乱数でＸ座標の指定
+		int x = rand() % 80;
+		float x2 = (float)x / 10 - 4;
+		worldTransformEnemy_.translation_.x = x2;
 	}
 }

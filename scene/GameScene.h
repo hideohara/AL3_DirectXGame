@@ -75,6 +75,12 @@ class GameScene {
 	WorldTransform worldTransformBeam_;
 	int beamFlag_ = 0; // ビーム存在フラグ（0:存在しない、1:存在する）
 
+	// 敵
+	uint32_t textureHandleEnemy_ = 0;
+	Model* modelEnemy_ = nullptr;
+	WorldTransform worldTransformEnemy_;
+	int enemyFlag_ = 0; // 敵存在フラグ（0:存在しない、1:存在する）
+
 	// サウンドデータハンドル
 	// uint32_t soundDataHandle_ = 0;
 
@@ -88,4 +94,7 @@ class GameScene {
 	void BeamUpdate();   // ビーム更新
 	void BeamMove();     // ビーム移動
 	void BeamBorn();     // ビーム発生
+	void EnemyUpdate();  // 敵更新
+	void EnemyMove();    // 敵移動
+	void EnemyBorn();    // 敵発生
 };
