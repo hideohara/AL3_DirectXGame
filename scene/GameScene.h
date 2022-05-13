@@ -90,11 +90,17 @@ class GameScene {
 	//  値を表示したい変数
 	// int32_t value_ = 0;
 
-	void PlayerUpdate(); // プレイヤー更新
-	void BeamUpdate();   // ビーム更新
-	void BeamMove();     // ビーム移動
-	void BeamBorn();     // ビーム発生
-	void EnemyUpdate();  // 敵更新
-	void EnemyMove();    // 敵移動
-	void EnemyBorn();    // 敵発生
+	int gameScore_ = 0;  // ゲームスコア
+	int playerLife_ = 3; // プレイヤーライフ
+
+	void PlayerUpdate();         // プレイヤー更新
+	void BeamUpdate();           // ビーム更新
+	void BeamMove();             // ビーム移動
+	void BeamBorn();             // ビーム発生
+	void EnemyUpdate();          // 敵更新
+	void EnemyMove();            // 敵移動
+	void EnemyBorn();            // 敵発生
+	void Collision();            // 衝突判定
+	void CollisionPlayerEnemy(); // 衝突判定（プレイヤーと敵）
+	void CollisionBeamEnemy();   // 衝突判定（ビームと敵）
 };
