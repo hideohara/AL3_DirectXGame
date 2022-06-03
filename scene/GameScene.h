@@ -92,6 +92,12 @@ class GameScene {
 
 	int gameScore_ = 0;  // ゲームスコア
 	int playerLife_ = 3; // プレイヤーライフ
+	int sceneMode_ = 0;  // シーンモード（0:ゲームプレイ　1:タイトル）
+
+	void GamePlayUpdate();     // ゲームプレイ更新
+	void GamePlayDraw3D();     // ゲームプレイ3D表示
+	void GamePlayDraw2DBack(); // ゲームプレイ背景2D表示
+	void GamePlayDraw2DNear(); // ゲームプレイ近景2D表示
 
 	void PlayerUpdate();         // プレイヤー更新
 	void BeamUpdate();           // ビーム更新

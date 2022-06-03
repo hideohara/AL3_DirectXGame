@@ -73,11 +73,12 @@ void GameScene::Initialize() {
 
 // 更新
 void GameScene::Update() {
-
-	PlayerUpdate(); // プレイヤー更新
-	BeamUpdate();   // ビーム更新
-	EnemyUpdate();  // 敵更新
-	Collision();    // 衝突判定
+	// 各シーンの更新処理を呼び出す
+	switch (sceneMode_) {
+	case 0:
+		GamePlayUpdate(); // ゲームプレイ更新
+		break;
+	}
 }
 
 // 表示
@@ -94,7 +95,12 @@ void GameScene::Draw() {
 	/// ここに背景スプライトの描画処理を追加できる
 	/// </summary>
 
-	spriteBG_->Draw();
+	// 各シーンの表示処理を呼び出す
+	switch (sceneMode_) {
+	case 0:
+		GamePlayDraw2DBack(); // ゲームプレイ２Ｄ背景表示
+		break;
+	}
 
 	// スプライト描画後処理
 	Sprite::PostDraw();
@@ -110,6 +116,55 @@ void GameScene::Draw() {
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
 
+	// 各シーンの表示処理を呼び出す
+	switch (sceneMode_) {
+	case 0:
+		GamePlayDraw3D(); // ゲームプレイ３Ｄ表示
+		break;
+	}
+
+	// 3Dオブジェクト描画後処理
+	Model::PostDraw();
+#pragma endregion
+
+#pragma region 前景スプライト描画
+	// 前景スプライト描画前処理
+	Sprite::PreDraw(commandList);
+
+	/// <summary>
+	/// ここに前景スプライトの描画処理を追加できる
+	/// </summary>
+
+	// 各シーンの表示処理を呼び出す
+	switch (sceneMode_) {
+	case 0:
+		GamePlayDraw2DNear(); // ゲームプレイ２Ｄ近景表示
+		break;
+	}
+
+	// デバッグテキストの描画
+	debugText_->DrawAll(commandList);
+	//
+	// スプライト描画後処理
+	Sprite::PostDraw();
+
+#pragma endregion
+}
+
+// *****************************************************
+// ゲームプレイ
+// *****************************************************
+
+// ゲームプレイ更新
+void GameScene::GamePlayUpdate() {
+	PlayerUpdate(); // プレイヤー更新
+	BeamUpdate();   // ビーム更新
+	EnemyUpdate();  // 敵更新
+	Collision();    // 衝突判定
+}
+
+// ゲームプレイ3D表示
+void GameScene::GamePlayDraw3D() {
 	// ステージ
 	modelStage_->Draw(worldTransformStage_, viewProjection_, textureHandleStage_);
 
@@ -125,19 +180,13 @@ void GameScene::Draw() {
 	if (enemyFlag_ == 1) {
 		modelEnemy_->Draw(worldTransformEnemy_, viewProjection_, textureHandleEnemy_);
 	}
+}
 
-	// 3Dオブジェクト描画後処理
-	Model::PostDraw();
-#pragma endregion
+// ゲームプレイ背景2D表示
+void GameScene::GamePlayDraw2DBack() { spriteBG_->Draw(); }
 
-#pragma region 前景スプライト描画
-	// 前景スプライト描画前処理
-	Sprite::PreDraw(commandList);
-
-	/// <summary>
-	/// ここに前景スプライトの描画処理を追加できる
-	/// </summary>
-
+// ゲームプレイ近景2D表示
+void GameScene::GamePlayDraw2DNear() {
 	// ゲームスコア
 	char str[100];
 	sprintf_s(str, "SCORE %d", gameScore_);
@@ -145,15 +194,9 @@ void GameScene::Draw() {
 
 	sprintf_s(str, "LIFE %d", playerLife_);
 	debugText_->Print(str, 900, 10, 2);
-
-	// デバッグテキストの描画
-	debugText_->DrawAll(commandList);
-	//
-	// スプライト描画後処理
-	Sprite::PostDraw();
-
-#pragma endregion
 }
+
+// *****************************************************
 
 // —------------------------------------------
 // プレイヤー
