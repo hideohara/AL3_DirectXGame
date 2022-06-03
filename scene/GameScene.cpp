@@ -138,7 +138,7 @@ void GameScene::Draw() {
 	// 各シーンの表示処理を呼び出す
 	switch (sceneMode_) {
 	case 0:
-		GamePlayDraw2DNear(); // ゲームプレイ２Ｄ近景表示
+		GamePlayDraw2DNear(); // ゲームプレイ２Ｄ前景表示
 		break;
 	}
 
@@ -195,8 +195,6 @@ void GameScene::GamePlayDraw2DNear() {
 	sprintf_s(str, "LIFE %d", playerLife_);
 	debugText_->Print(str, 900, 10, 2);
 }
-
-// *****************************************************
 
 // —------------------------------------------
 // プレイヤー
