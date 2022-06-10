@@ -90,14 +90,28 @@ class GameScene {
 	//  値を表示したい変数
 	// int32_t value_ = 0;
 
+	// タイトル（スプライト）
+	uint32_t textureHandleTitle_ = 0;
+	Sprite* spriteTitle_ = nullptr;
+
+	// エンター（スプライト）
+	uint32_t textureHandleEnter_ = 0;
+	Sprite* spriteEnter_ = nullptr;
+
+	// ゲームオーバー（スプライト）
+	uint32_t textureHandleGameOver_ = 0;
+	Sprite* spriteGameOver_ = nullptr;
+
 	int gameScore_ = 0;  // ゲームスコア
 	int playerLife_ = 3; // プレイヤーライフ
-	int sceneMode_ = 0;  // シーンモード（0:ゲームプレイ　1:タイトル）
+	int sceneMode_ = 1;  // シーンモード（0:ゲームプレイ　1:タイトル）
+	int gameTimer_ = 0;  //タイマー変数
 
 	void GamePlayUpdate();     // ゲームプレイ更新
 	void GamePlayDraw3D();     // ゲームプレイ3D表示
 	void GamePlayDraw2DBack(); // ゲームプレイ背景2D表示
 	void GamePlayDraw2DNear(); // ゲームプレイ近景2D表示
+	void GamePlayStart();      // ゲームプレイ初期化
 
 	void PlayerUpdate();         // プレイヤー更新
 	void BeamUpdate();           // ビーム更新
@@ -109,4 +123,10 @@ class GameScene {
 	void Collision();            // 衝突判定
 	void CollisionPlayerEnemy(); // 衝突判定（プレイヤーと敵）
 	void CollisionBeamEnemy();   // 衝突判定（ビームと敵）
+
+	void TitleUpdate();     // タイトル更新
+	void TitleDraw2DNear(); // タイトル2D
+
+	void GameOverUpdate();     // ゲームオーバー更新
+	void GameOverDraw2DNear(); // ゲームオーバー2D
 };
