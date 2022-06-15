@@ -72,14 +72,15 @@ class GameScene {
 	// ビ－ム
 	uint32_t textureHandleBeam_ = 0;
 	Model* modelBeam_ = nullptr;
-	WorldTransform worldTransformBeam_;
-	int beamFlag_ = 0; // ビーム存在フラグ（0:存在しない、1:存在する）
+	WorldTransform worldTransformBeam_[10];
+	int beamFlag_[10] = {}; // ビーム存在フラグ（0:存在しない、1:存在する）
 
 	// 敵
 	uint32_t textureHandleEnemy_ = 0;
 	Model* modelEnemy_ = nullptr;
-	WorldTransform worldTransformEnemy_;
-	int enemyFlag_ = 0; // 敵存在フラグ（0:存在しない、1:存在する）
+	WorldTransform worldTransformEnemy_[10];
+	int enemyFlag_[10] = {};    // 敵存在フラグ（0:存在しない、1:存在する）
+	float enemySpeed_[10] = {}; // 敵のスピード
 
 	// サウンドデータハンドル
 	// uint32_t soundDataHandle_ = 0;
@@ -106,6 +107,7 @@ class GameScene {
 	int playerLife_ = 3; // プレイヤーライフ
 	int sceneMode_ = 1;  // シーンモード（0:ゲームプレイ　1:タイトル）
 	int gameTimer_ = 0;  //タイマー変数
+	int beamTimer_ = 0;  // ビーム発射タイマー
 
 	void GamePlayUpdate();     // ゲームプレイ更新
 	void GamePlayDraw3D();     // ゲームプレイ3D表示
