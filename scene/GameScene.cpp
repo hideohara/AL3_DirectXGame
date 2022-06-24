@@ -41,11 +41,13 @@ void GameScene::Initialize() {
 	viewProjection_.Initialize();
 
 	// ステージ
-	textureHandleStage_ = TextureManager::Load("stage.jpg");
+	textureHandleStage_ = TextureManager::Load("stage2.jpg");
 	modelStage_ = Model::Create();
-	worldTransformStage_.translation_ = {0, -1.5f, 0};
-	worldTransformStage_.scale_ = {4.5f, 1, 40};
-	worldTransformStage_.Initialize();
+	for (int i = 0; i < 20; i++) {
+		worldTransformStage_[i].translation_ = {0, -1.5f, 2.0f * i - 5};
+		worldTransformStage_[i].scale_ = {4.5f, 1, 1};
+		worldTransformStage_[i].Initialize();
+	}
 
 	// プレイヤー
 	textureHandlePlayer_ = TextureManager::Load("player.png");
@@ -198,6 +200,7 @@ void GameScene::GamePlayUpdate() {
 	BeamUpdate();   // ビーム更新
 	EnemyUpdate();  // 敵更新
 	Collision();    // 衝突判定
+	StageUpdate();  // ステージ更新
 
 	// ライフ０でゲームオーバー
 	if (playerLife_ <= 0) {
@@ -213,7 +216,9 @@ void GameScene::GamePlayUpdate() {
 // ゲームプレイ3D表示
 void GameScene::GamePlayDraw3D() {
 	// ステージ
-	modelStage_->Draw(worldTransformStage_, viewProjection_, textureHandleStage_);
+	for (int i = 0; i < 20; i++) {
+		modelStage_->Draw(worldTransformStage_[i], viewProjection_, textureHandleStage_);
+	}
 
 	// プレイヤー
 	modelPlayer_->Draw(worldTransformPlayer_, viewProjection_, textureHandlePlayer_);
@@ -227,7 +232,7 @@ void GameScene::GamePlayDraw3D() {
 
 	// 敵
 	for (int i = 0; i < 10; i++) {
-		if (enemyFlag_[i] == 1) {
+		if (enemyFlag_[i] != 0) {
 			modelEnemy_->Draw(worldTransformEnemy_[i], viewProjection_, textureHandleEnemy_);
 		}
 	}
@@ -246,11 +251,14 @@ void GameScene::GamePlayDraw2DNear() {
 	sprintf_s(str, "LIFE %d", playerLife_);
 	debugText_->Print(str, 900, 10, 2);
 }
+
 // ゲームプレイ初期化
 void GameScene::GamePlayStart() {
 	gameScore_ = 0;  // ゲームスコア
 	playerLife_ = 3; // プレイヤーライフ
 	gameTimer_ = 0;  //タイマー変数
+	gameTimer_ = 0;  // ゲームタイマー
+
 	for (int i = 0; i < 10; i++) {
 		beamFlag_[i] = 0; // ビーム存在フラグ（0:存在しない、1:存在する）
 	}
@@ -376,6 +384,9 @@ void GameScene::EnemyUpdate() {
 	// 敵発生
 	EnemyBorn();
 
+	// 敵消滅演出
+	EnemyJump();
+
 	//行列更新
 	for (int i = 0; i < 10; i++) {
 		worldTransformEnemy_[i].UpdateMatrix();
@@ -388,7 +399,9 @@ void GameScene::EnemyMove() {
 		// 存在すれば
 		if (enemyFlag_[i] == 1) {
 			// 手前へ移動
-			worldTransformEnemy_[i].translation_.z -= 0.2f;
+			// タイマーにより速度を設定
+			worldTransformEnemy_[i].translation_.z -= 0.1f;
+			worldTransformEnemy_[i].translation_.z -= gameTimer_ / 10000.0f;
 
 			// 画面端ならば存在しない
 			if (worldTransformEnemy_[i].translation_.z < -5) {
@@ -432,6 +445,9 @@ void GameScene::EnemyBorn() {
 				float x2 = (float)x / 10 - 4;
 				worldTransformEnemy_[i].translation_.x = x2;
 
+				// Y座標
+				worldTransformEnemy_[i].translation_.y = 0;
+
 				// 敵スピード
 				if (rand() % 2 == 0) {
 					enemySpeed_[i] = 0.2f;
@@ -441,6 +457,30 @@ void GameScene::EnemyBorn() {
 
 				// ループ終了
 				break;
+			}
+		}
+	}
+}
+
+// 敵ジャンプ
+void GameScene::EnemyJump() {
+	// 敵でループ
+	for (int i = 0; i < 10; i++) {
+		// 消滅演出ならば
+		if (enemyFlag_[i] == 2) {
+			// 移動（Y座標に速度を加える）
+			worldTransformEnemy_[i].translation_.y += enemyJumpSpeed_[i];
+
+			// 速度を減らす
+			enemyJumpSpeed_[i] -= 0.1f;
+
+			// 斜め移動
+			worldTransformEnemy_[i].translation_.x += enemySpeed_[i] * 2;
+
+			// 下へ落ちると消滅
+			if (worldTransformEnemy_[i].translation_.y < -3) {
+				// 存在しない
+				enemyFlag_[i] = 0;
 			}
 		}
 	}
@@ -473,7 +513,8 @@ void GameScene::CollisionPlayerEnemy() {
 			// 衝突したら
 			if (dx < 1 && dz < 1) {
 				// 存在しない
-				enemyFlag_[i] = 0;
+				enemyFlag_[i] = 2;
+				enemyJumpSpeed_[i] = 1;
 
 				// ライフを引く
 				playerLife_ -= 1;
@@ -507,8 +548,9 @@ void GameScene::CollisionBeamEnemy() {
 					// 衝突したら
 					if (dx < 1 && dz < 1) {
 						// 存在しない
-						enemyFlag_[e] = 0;
+						enemyFlag_[e] = 2;
 						beamFlag_[b] = 0;
+						enemyJumpSpeed_[e] = 1;
 
 						// スコア加算
 						gameScore_ += 1;
@@ -519,6 +561,21 @@ void GameScene::CollisionBeamEnemy() {
 				}
 			}
 		}
+	}
+}
+
+// ステージ更新
+void GameScene::StageUpdate() {
+	// 各ステージでループ
+	for (int i = 0; i < 20; i++) {
+		// 手前に移動
+		worldTransformStage_[i].translation_.z -= 0.1f;
+		// 端まで来たら奥へ戻る
+		if (worldTransformStage_[i].translation_.z < -5) {
+			worldTransformStage_[i].translation_.z += 40;
+		}
+		//行列更新
+		worldTransformStage_[i].UpdateMatrix();
 	}
 }
 
